@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My AI Chatbot</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#f4f6fb;color:#172033;
+ height:100vh;display:flex;justify-content:center;
+}
+.app{
+ width:100%;max-width:900px;height:100vh;
+ background:white;display:flex;flex-direction:column;
+ box-shadow:0 0 25px #0001;
+}
+header{
+ background:#172554;color:white;padding:17px 20px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-size:21px;font-weight:bold}
+header small{color:#c7d2fe}
+button{cursor:pointer;border:0;border-radius:10px}
+.clear{background:#ffffff20;color:white;padding:10px}
+.welcome{text-align:center;margin:auto 20px;color:#334155}
+.welcome .robot{font-size:58px}
+.welcome h2{font-size:27px}
+.suggestions{display:flex;gap:8px;justify-content:center;
+ flex-wrap:wrap;margin-top:20px}
+.suggestions button{
+ background:#eef2ff;color:#3730a3;padding:12px;
+ border:1px solid #dbe3ff
+}
+#chat{
+ flex:1;overflow-y:auto;padding:20px;
+ display:flex;flex-direction:column;gap:18px;
+}
+.message{display:flex;gap:10px;max-width:90%;line-height:1.6}
+.message.user{align-self:flex-end;flex-direction:row-reverse}
+.avatar{
+ width:34px;height:34px;min-width:34px;
+ border-radius:50%;display:grid;place-items:center;
+ background:#e0e7ff
+}
+.bubble{padding:12px 15px;border-radius:15px;
+ white-space:pre-wrap;overflow-wrap:anywhere}
+.bot .bubble{background:#f1f5f9}
+.user .bubble{background:#4f46e5;color:white}
+.composer{padding:15px 18px 8px;border-top:1px solid #e5e7eb}
+form{display:flex;gap:10px}
+input{
+ flex:1;min-width:0;padding:15px;
+ border:1px solid #cbd5e1;border-radius:12px;
+ outline:none;font-size:16px
+}
+input:focus{border-color:#4f46e5}
+.send{background:#4f46e5;color:white;padding:0 22px;font-size:16px}
+.send:disabled{opacity:.5}
+.note{text-align:center;font-size:12px;color:#64748b;padding:10px}
+@media(max-width:500px){
+ #chat{padding:12px}
+ .composer{padding:10px}
+ .welcome h2{font-size:23px}
+ .suggestions button{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+ <header>
+  <div>
+   <div class="logo">🤖 My AI Assistant</div>
+   <small>आपका स्मार्ट सहायक</small>
+  </div>
+  <button class="clear" id="clear">नई चैट +</button>
+ </header>
+
+ <main id="chat">
+  <div class="welcome" id="welcome">
+   <div class="robot">✨🤖</div>
+   <h2>नमस्ते! मैं आपका AI सहायक हूँ।</h2>
+   <p>आज आप क्या सीखना या जानना चाहते हैं?</p>
+   <div class="suggestions">
+    <button data-q="आर्टिफिशियल इंटेलिजेंस क्या है?">AI क्या है?</button>
+    <button data-q="Python सीखना कैसे शुरू करूँ?">Python सीखें</button>
+    <button data-q="मुझे एक मजेदार कहानी सुनाओ।">कहानी सुनाओ</button>
+   </div>
+  </div>
+ </main>
+
+ <div class="composer">
+  <form id="form">
+   <input id="input" placeholder="अपना सवाल यहाँ लिखें..." autocomplete="off">
+   <button class="send" id="send" type="submit">भेजें ➤</button>
+  </form>
+  <div class="note">AI के जवाबों में गलती हो सकती है। जरूरी जानकारी जाँचें।</div>
+ </div>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const welcome = document.getElementById("welcome");
+
+function addMessage(text, who) {
+  welcome.remove();
+  const row = document.createElement("div");
+  row.className = "message " + who;
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = who === "user" ? "👤" : "🤖";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  row.append(avatar, bubble);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+  return bubble;
+}
+
+async function askAI(question) {
+  addMessage(question, "user");
+  const answer = addMessage("यह डेमो चैट है। असली AI जोड़ने के लिए Python Flask और Groq API को सुरक्षित तरीके से कनेक्ट करना होगा।", "bot");
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const question = input.value.trim();
+  if (!question) return;
+
+  input.value = "";
+  send.disabled = true;
+  try {
+    await askAI(question);
+  } finally {
+    send.disabled = false;
+    input.focus();
+  }
+});
+
+document.querySelectorAll("[data-q]").forEach(button => {
+  button.addEventListener("click", () => {
+    input.value = button.dataset.q;
+    form.requestSubmit();
+  });
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  chat.replaceChildren();
+  chat.appendChild(welcome);
+  welcome.querySelector("h2").textContent =
+    "नमस्ते! मैं आपका AI सहायक हूँ।";
+  input.value = "";
+});
+</script>
+</body>
+</html>
